@@ -1,9 +1,13 @@
 import mysql.connector
+import getpass
+
+login = input("Login: ")
+passwd = getpass.getpass('Password: ')
 
 userdb = mysql.connector.connect(
     host = "172.16.20.38",
-    user = "",
-    passwd = "",
+    user = login,
+    passwd = passwd,
     db = "userdb"
 )
 
@@ -19,7 +23,5 @@ if not result:
     exit(0)
 
 else:
-
-
     for row in result:
         print(row)
