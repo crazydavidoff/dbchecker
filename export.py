@@ -6,6 +6,15 @@ hosts = open("hosts.txt")
 login = input("Login: ")
 passwd = getpass.getpass('Password: ')
 
+userdb = mysql.connector.connect(
+        host="172.16.20.38",
+        user=login,
+        passwd=passwd,
+        db="userdb"
+    )
+
+userdbcursor = userdb.cursor()
+
 for hostdb in hosts:
 
     hostdb = hostdb[:-1]
@@ -29,19 +38,11 @@ for hostdb in hosts:
     for row in result:
         row = (hostname[1], ) + (hostdb, ) + row + (version[1], )
 
-        userdb = mysql.connector.connect(
-            host="172.16.20.38",
-            user=login,
-            passwd=passwd,
-            db="userdb"
-        )
-        userdbcursor = userdb.cursor()
-
         sql_insert = "INSERT INTO users (hostname,ip,login,host,password,version) VALUES (%s, %s, %s, %s, %s, %s)"
 
         userdbcursor.execute(sql_insert, row)
-        userdb.commit()
         print(row)
+    userdb.commit()
 
 hosts.close()
 
