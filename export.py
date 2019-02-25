@@ -43,6 +43,8 @@ for hostdb in hosts:
         userdbcursor.execute(sql_insert, row)
         print(row)
     userdb.commit()
+    exportdb.disconnect()
+userdb.disconnect()
 
 hosts.close()
 
