@@ -1,10 +1,9 @@
 import mysql.connector
-import getpass
 
 hosts = open("hosts.txt")
 
-login = input("Login: ")
-passwd = getpass.getpass('Password: ')
+login = input("Login:")
+passwd = input("Password:")
 
 userdb = mysql.connector.connect(
         host="172.16.20.38",
@@ -43,8 +42,10 @@ for hostdb in hosts:
         userdbcursor.execute(sql_insert, row)
         print(row)
     userdb.commit()
+    exportdbcursor.close()
     exportdb.close()
+
+userdbcursor.close()
 userdb.close()
 
 hosts.close()
-
