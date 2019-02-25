@@ -1,8 +1,8 @@
 import mysql.connector
-import getpass
 
-login = input("Login: ")
-passwd = getpass.getpass('Password: ')
+
+login = input("Login:")
+passwd = input("Password:")
 
 userdb = mysql.connector.connect(
     host = "172.16.20.38",
