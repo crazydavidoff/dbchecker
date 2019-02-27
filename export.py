@@ -1,4 +1,5 @@
 import mysql.connector
+from packaging import version
 
 hosts = open("hosts.txt")
 
@@ -28,14 +29,17 @@ for hostdb in hosts:
     exportdbcursor.execute("show variables like 'hostname'")
     hostname = exportdbcursor.fetchone()
     exportdbcursor.execute("show variables like 'innodb_version'")
-    version = exportdbcursor.fetchone()
+    mysql_version = exportdbcursor.fetchone()
 
-    exportdbcursor.execute("select User,Host,Password from mysql.user where (Host like '172.16%') OR (Host like '\%')")
-
-    result = exportdbcursor.fetchall()
+    if version.parse(mysql_version[1]) > version.parse("5.7"):
+        exportdbcursor.execute("select User,Host,authentication_string from mysql.user where (Host like '172.16%') OR (Host like '\%')")
+        result = exportdbcursor.fetchall()
+    else:
+        exportdbcursor.execute("select User,Host,Password from mysql.user where (Host like '172.16%') OR (Host like '\%')")
+        result = exportdbcursor.fetchall()
 
     for row in result:
-        row = (hostname[1], ) + (hostdb, ) + row + (version[1], )
+        row = (hostname[1], ) + (hostdb, ) + row + (mysql_version[1], )
 
         sql_insert = "INSERT INTO users (hostname,ip,login,host,password,version) VALUES (%s, %s, %s, %s, %s, %s)"
 
