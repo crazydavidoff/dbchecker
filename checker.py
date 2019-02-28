@@ -13,10 +13,9 @@ userdb = mysql.connector.connect(
 
 userdbcursor = userdb.cursor()
 
-userdbcursor.execute("SELECT login,password FROM users")
+userdbcursor.execute("SELECT login,password FROM export")
 
 result = userdbcursor.fetchall()
-print(result)
 
 if not result:
     print("Table is empty")
@@ -24,4 +23,13 @@ if not result:
 
 else:
     for row in result:
+        #userdbcursor = userdb.cursor()
+        hash_query = "SELECT password(%s)"
+        userdbcursor.execute(hash_query, (row[1],))
+        new_hash = userdbcursor.fetchone()
+        row = (row[0],) + new_hash
+
+        #change_query = "update users set password = %s where login like %s;"
+
         print(row)
+
