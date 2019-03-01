@@ -1,5 +1,5 @@
 import mysql.connector
-
+from packaging import version
 
 login = input("Login:")
 passwd = input("Password:")
@@ -14,22 +14,44 @@ userdb = mysql.connector.connect(
 userdbcursor = userdb.cursor()
 
 userdbcursor.execute("SELECT login,password FROM export")
-
 result = userdbcursor.fetchall()
 
 if not result:
-    print("Table is empty")
     exit(0)
 
 else:
     for row in result:
-        #userdbcursor = userdb.cursor()
-        hash_query = "SELECT password(%s)"
-        userdbcursor.execute(hash_query, (row[1],))
-        new_hash = userdbcursor.fetchone()
-        row = (row[0],) + new_hash
+        login9 = row[0][:9]+"%"
+        update_query = "update users set password = password(%s) where login like %s"
+        row = (row[1],) + (login9,)
+        userdbcursor.execute(update_query, row)
+        #delete_query = "delete from export where login like %s"
+        #userdbcursor.execute(delete_query, (row[1],))
+        userdb.commit()
 
-        #change_query = "update users set password = %s where login like %s;"
+        userdbcursor.execute("SELECT ip,login,host,password,version FROM users where login like %s", (login9,))
+        result2 = userdbcursor.fetchall()
+        for row2 in result2:
+            forupdatedb = mysql.connector.connect(
+                host = row2[0],
+                user = login,
+                passwd = passwd,
+                db = "mysql"
+            )
 
-        print(row)
+            forupdatedbcursor = forupdatedb.cursor()
 
+            if version.parse(row2[4]) > version.parse("5.7"):
+                update_query2 = ("UPDATE mysql.user SET authentication_string=%s WHERE Host=%s and User=%s")
+            else:
+                update_query2 = ("UPDATE mysql.user SET Password=%s WHERE Host=%s and User=%s")
+
+            row2 = (row2[3],) + (row2[2],) + (row2[1],)
+            forupdatedbcursor.execute(update_query2, row2)
+            forupdatedbcursor.execute("flush privileges")
+            forupdatedb.commit()
+            forupdatedbcursor.close()
+            forupdatedb.close()
+
+        userdbcursor.close()
+        userdb.close()
