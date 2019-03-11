@@ -16,10 +16,7 @@ userdbcursor = userdb.cursor()
 userdbcursor.execute("SELECT login,password FROM export where mysql_flag is NULL")
 result = userdbcursor.fetchall()
 
-if not result:
-    exit(0)
-
-else:
+if result:
     for row in result:
         login9 = row[0][:9]+"%"
         update_query = "update users set password = password(%s) where login like %s"
@@ -53,5 +50,7 @@ else:
             forupdatedbcursor.close()
             forupdatedb.close()
 
-        userdbcursor.close()
-        userdb.close()
+userdbcursor.execute("delete from export where mysql_flag = '1' and ad_flag = '1'")
+userdb.commit()
+userdbcursor.close()
+userdb.close()
