@@ -13,7 +13,7 @@ userdb = mysql.connector.connect(
 
 userdbcursor = userdb.cursor()
 
-userdbcursor.execute("SELECT login,password FROM export")
+userdbcursor.execute("SELECT login,password FROM export where mysql_flag is NULL")
 result = userdbcursor.fetchall()
 
 if not result:
@@ -25,8 +25,8 @@ else:
         update_query = "update users set password = password(%s) where login like %s"
         row = (row[1],) + (login9,)
         userdbcursor.execute(update_query, row)
-        #delete_query = "delete from export where login like %s"
-        #userdbcursor.execute(delete_query, (row[1],))
+        set_flag_query = "UPDATE export SET mysql_flag = '1' WHERE login like %s"
+        userdbcursor.execute(set_flag_query, (login9,))
         userdb.commit()
 
         userdbcursor.execute("SELECT ip,login,host,password,version FROM users where login like %s", (login9,))
