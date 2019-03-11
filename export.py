@@ -22,11 +22,16 @@ for hostdb in hosts:
 
     hostdb = hostdb[:-1]
 
-    exportdb = mysql.connector.connect(
-        host = hostdb,
-        user = login,
-        passwd = passwd
-    )
+    try:
+        exportdb = mysql.connector.connect(
+            host = hostdb,
+            user = login,
+            passwd = passwd
+        )
+    except:
+        print("Server " + hostdb + " is not available. (Mysql is not running or authentification failed)")
+        continue
+
     exportdbcursor = exportdb.cursor()
 
     exportdbcursor.execute("show variables like 'hostname'")
