@@ -15,6 +15,9 @@ userdb = mysql.connector.connect(
 
 userdbcursor = userdb.cursor()
 
+userdbcursor.execute("truncate table users")
+userdb.commit()
+
 for hostdb in hosts:
 
     hostdb = hostdb[:-1]
