@@ -29,7 +29,7 @@ for host in hosts:
             passwd = passwd
         )
     except:
-        print("Server " + host[0] + " is not available. (Mysql is not running or authentification failed)")
+        print("Server " + host[0] + " is not available. (Mysql is not running or authentication failed)")
         continue
 
     exportdbcursor = exportdb.cursor()
