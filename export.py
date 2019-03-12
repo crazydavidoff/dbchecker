@@ -1,8 +1,6 @@
 import mysql.connector
 from packaging import version
 
-hosts = open("hosts.txt")
-
 login = input("Login:")
 passwd = input("Password:")
 
@@ -18,18 +16,20 @@ userdbcursor = userdb.cursor()
 userdbcursor.execute("truncate table users")
 userdb.commit()
 
-for hostdb in hosts:
+userdbcursor.execute("SELECT ip FROM hosts")
+hosts = userdbcursor.fetchall()
 
-    hostdb = hostdb[:-1]
+
+for host in hosts:
 
     try:
         exportdb = mysql.connector.connect(
-            host = hostdb,
+            host = host[0],
             user = login,
             passwd = passwd
         )
     except:
-        print("Server " + hostdb + " is not available. (Mysql is not running or authentification failed)")
+        print("Server " + host[0] + " is not available. (Mysql is not running or authentification failed)")
         continue
 
     exportdbcursor = exportdb.cursor()
@@ -47,7 +47,7 @@ for hostdb in hosts:
         result = exportdbcursor.fetchall()
 
     for row in result:
-        row = (hostname[1], ) + (hostdb, ) + row + (mysql_version[1], )
+        row = (hostname[1], ) + (host[0], ) + row + (mysql_version[1], )
 
         sql_insert = "INSERT INTO users (hostname,ip,login,host,password,version) VALUES (%s, %s, %s, %s, %s, %s)"
 
@@ -59,5 +59,3 @@ for hostdb in hosts:
 
 userdbcursor.close()
 userdb.close()
-
-hosts.close()
