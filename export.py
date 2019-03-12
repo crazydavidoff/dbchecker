@@ -52,8 +52,7 @@ for host in hosts:
         sql_insert = "INSERT INTO users (hostname,ip,login,host,password,version) VALUES (%s, %s, %s, %s, %s, %s)"
 
         userdbcursor.execute(sql_insert, row)
-        print(row)
-    userdb.commit()
+        userdb.commit()
     exportdbcursor.close()
     exportdb.close()
 
