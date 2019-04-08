@@ -4,20 +4,20 @@ from packaging import version
 login = input("Login:")
 passwd = input("Password:")
 
-userdb = mysql.connector.connect(
-        host="172.16.20.38",
+mysqlmanagerdb = mysql.connector.connect(
+        host="172.16.20.115",
         user=login,
         passwd=passwd,
-        db="userdb"
+        db="mysql_manager"
     )
 
-userdbcursor = userdb.cursor()
+mysqlmanagerdbcursor = mysqlmanagerdb.cursor()
 
-userdbcursor.execute("truncate table users")
-userdb.commit()
+mysqlmanagerdbcursor.execute("truncate table users")
+mysqlmanagerdb.commit()
 
-userdbcursor.execute("SELECT ip FROM hosts")
-hosts = userdbcursor.fetchall()
+mysqlmanagerdbcursor.execute("SELECT ip FROM hosts")
+hosts = mysqlmanagerdbcursor.fetchall()
 
 
 for host in hosts:
@@ -51,10 +51,10 @@ for host in hosts:
 
         sql_insert = "INSERT INTO users (hostname,ip,login,host,password,version) VALUES (%s, %s, %s, %s, %s, %s)"
 
-        userdbcursor.execute(sql_insert, row)
-        userdb.commit()
+        mysqlmanagerdbcursor.execute(sql_insert, row)
+        mysqlmanagerdb.commit()
     exportdbcursor.close()
     exportdb.close()
 
-userdbcursor.close()
-userdb.close()
+mysqlmanagerdbcursor.close()
+mysqlmanagerdb.close()

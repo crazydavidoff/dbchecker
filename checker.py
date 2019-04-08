@@ -4,30 +4,39 @@ from packaging import version
 login = input("Login:")
 passwd = input("Password:")
 
-userdb = mysql.connector.connect(
-    host = "172.16.20.38",
+mysqlmanagerdb = mysql.connector.connect(
+    host = "172.16.20.115",
     user = login,
     passwd = passwd,
-    db = "userdb"
+    db = "mysql_manager"
 )
 
-userdbcursor = userdb.cursor()
+accountsdb = mysql.connector.connect(
+    host = "172.16.20.115",
+    user = login,
+    passwd = passwd,
+    db = "accounts"
+)
 
-userdbcursor.execute("SELECT login,password FROM export where mysql_flag is NULL")
-result = userdbcursor.fetchall()
+accountsdbcursor = accountsdb.cursor()
+mysqlmanagerdbcursor = mysqlmanagerdb.cursor()
+
+accountsdbcursor.execute("SELECT login_change,password_change FROM Password where mysql_flag is NULL")
+result = accountsdbcursor.fetchall()
 
 if result:
     for row in result:
         login9 = row[0][:9]+"%"
         update_query = "update users set password = password(%s) where login like %s"
         row = (row[1],) + (login9,)
-        userdbcursor.execute(update_query, row)
-        set_flag_query = "UPDATE export SET mysql_flag = '1' WHERE login like %s"
-        userdbcursor.execute(set_flag_query, (login9,))
-        userdb.commit()
+        mysqlmanagerdbcursor.execute(update_query, row)
+        set_flag_query = "UPDATE Password SET mysql_flag = '1' WHERE login_change like %s"
+        accountsdbcursor.execute(set_flag_query, (login9,))
+        accountsdb.commit()
+        mysqlmanagerdb.commit()
 
-        userdbcursor.execute("SELECT ip,login,host,password,version FROM users where login like %s", (login9,))
-        result2 = userdbcursor.fetchall()
+        mysqlmanagerdbcursor.execute("SELECT ip,login,host,password,version FROM users where login like %s", (login9,))
+        result2 = mysqlmanagerdbcursor.fetchall()
         for row2 in result2:
             forupdatedb = mysql.connector.connect(
                 host = row2[0],
@@ -50,7 +59,9 @@ if result:
             forupdatedbcursor.close()
             forupdatedb.close()
 
-userdbcursor.execute("delete from export where mysql_flag = '1' and ad_flag = '1'")
-userdb.commit()
-userdbcursor.close()
-userdb.close()
+accountsdbcursor.execute("delete from Password where mysql_flag = '1' and ad_flag = '1'")
+accountsdb.commit()
+mysqlmanagerdbcursor.close()
+mysqlmanagerdb.close()
+accountsdbcursor.close()
+accountsdb.close()
