@@ -26,16 +26,16 @@ result = accountsdbcursor.fetchall()
 
 if result:
     for row in result:
-        login16 = row[0][:16]+"%"
+        login15 = row[0][:15]+"%"
         update_query = "update users set password = password(%s) where login like %s"
-        row = (row[1],) + (login16,)
+        row = (row[1],) + (login15,)
         mysqlmanagerdbcursor.execute(update_query, row)
         set_flag_query = "UPDATE Password SET mysql_flag = '1' WHERE login_change like %s"
-        accountsdbcursor.execute(set_flag_query, (login16,))
+        accountsdbcursor.execute(set_flag_query, (login15,))
         accountsdb.commit()
         mysqlmanagerdb.commit()
 
-        mysqlmanagerdbcursor.execute("SELECT ip,login,host,password,version FROM users where login like %s", (login16,))
+        mysqlmanagerdbcursor.execute("SELECT ip,login,host,password,version FROM users where login like %s", (login15,))
         result2 = mysqlmanagerdbcursor.fetchall()
         for row2 in result2:
             forupdatedb = mysql.connector.connect(
